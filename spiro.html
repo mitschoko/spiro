@@ -1,0 +1,56 @@
+<!DOCTYPE html><html><head><title>SPiRO</title><link rel="stylesheet" href="/style.css"><script type="text/javascript" src="/jquery.min.js"></script></head><body><div id="EditControl"><div class="controls"><span>parameters</span><div id="parameters" class="controllCollection"><label for="#r1">radius 1</label><input id="r1" type="range" min="0" max="10000"><label for="#r2">radius 2</label><input id="r2" type="range" min="0" max="10000"><label for="#alpha">alpha</label><input id="alpha" type="range" min="1" max="100"><label for="#d">d</label><input id="d" type="range" min="1" max="360"><label for="#t">t</label><input id="t" type="range" min="1" max="4000"></div><span>colors</span><div id="colors" class="controllCollection"> <label for="#outlineColor"></label><input id="outlineColor" type="color"><div id="gradient" class="controllCollection"><span>Gradient</span><br><input type="color" value="#00FF00" class="inner"><input type="color" value="#FF0000" class="outer"><br><input type="range" min="1" max="100" class="ratio"></div><label for="#colorRadius"></label></div></div><div class="unfolder">Edit</div></div><svg class="spiro"><defs><radialGradient id="colorGradient" cx="50%" cy="50%" r="50%"><stop stop-color="#00FF00" stop-opacity="1" offset="0%" class="inner"></stop><stop stop-color="#FF0000" stop-opacity="1" offset="50%" class="middle"></stop><stop stop-color="#FF0000" stop-opacity="0" offset="100%" class="outer"> </stop></radialGradient></defs><g x="0" y="0" width="300" height="300" fill="#001A13" class="rect"> </g><g transform="scale( 300 ) translate( 1, 1 )" class="main"><circle cx="0" cy="0" r="1" fill="url(#colorGradient)"></circle><polyline points="" stroke="black" stroke-width="0.0003333333333333334" fill="none"></polyline></g></svg><script type="text/javascript">
+(function() {
+  var redraw;
+
+  $("#gradient .inner").change(function() {
+    return $("#colorGradient .inner").attr("stop-color", $("#gradient .inner").val());
+  });
+
+  $("#gradient .outer").change(function() {
+    return $("#colorGradient .outer").attr("stop-color", $("#gradient .outer").val());
+  });
+
+  $("#gradient .outer").change(function() {
+    var val;
+    val = $("#gradient .outer").val();
+    $("#colorGradient .middle").attr("stop-color", val);
+    return $("#colorGradient .outer").attr("stop-color", val);
+  });
+
+  $("#gradient .ratio").change(function() {
+    return $("#colorGradient .middle").attr("offset", "" + (Number($("#gradient .ratio").val())) + "%");
+  });
+
+  $("#outlineColor").change(function() {
+    return $(".spiro .main polyline").attr("stroke", $("#outlineColor").val());
+  });
+
+  redraw = function() {
+    var alpha, d, i, parameters, points, pos, r1, r2, t, x, y, _i;
+    parameters = {};
+    $("#parameters input").each(function(idx, para) {
+      return parameters[para.id] = Number($(para).val());
+    });
+    r1 = parameters["r1"] / 10000;
+    r2 = (1 - r1) * (parameters["r2"] / 10000);
+    d = (parameters["d"] / 360) * 2 * Math.PI;
+    alpha = parameters["alpha"] / 10;
+    t = parameters["t"];
+    points = "";
+    for (i = _i = 0; 0 <= t ? _i < t : _i > t; i = 0 <= t ? ++_i : --_i) {
+      pos = i * d * 2 * Math.PI;
+      x = r1 * Math.sin(pos) + r2 * Math.sin(alpha * pos);
+      y = r1 * Math.cos(pos) + r2 * Math.cos(alpha * pos);
+      points += "" + x + "," + y + " ";
+    }
+    return $(".spiro .main polyline").attr("points", points);
+  };
+
+  $("#parameters input").change(function() {
+    return redraw();
+  });
+
+  redraw();
+
+}).call(this);
+</script></body></html>
